@@ -1,11 +1,10 @@
 import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle, Plane, BookOpen } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Armchair, User, Plane } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { formatDateTime, formatDuration, formatPrice } from '@/lib/utils';
+import { formatDateTime, formatDuration, formatPrice, formatTime } from '@/lib/utils';
 import type { Booking, Flight, Seat, Passenger } from '@/types';
 
 interface PageProps {
@@ -30,77 +29,92 @@ async function ConfirmationCard({ bookingId }: { bookingId: string }) {
   const passenger = booking.passengers?.[0];
 
   return (
-    <div className="w-full max-w-md rounded-2xl bg-white shadow-lg ring-1 ring-slate-200 overflow-hidden">
-      {/* Header */}
-      <div className="bg-blue-600 p-6 text-center text-white">
-        <CheckCircle size={48} className="mx-auto mb-3" />
-        <h2 className="text-2xl font-bold">Booking Confirmed!</h2>
-        <p className="mt-1 text-blue-100">Your flight has been booked successfully</p>
+    <div className="w-full max-w-md">
+      {/* Success badge */}
+      <div className="mb-6 text-center">
+        <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+          <CheckCircle2 size={36} className="text-green-600" />
+        </div>
+        <h1 className="mt-3 text-2xl font-bold text-slate-900">Booking Confirmed</h1>
+        <p className="mt-1 text-sm text-slate-500">Your itinerary is ready</p>
       </div>
 
-      {/* PNR */}
-      <div className="border-b border-dashed border-slate-200 p-6 text-center">
-        <p className="text-sm text-slate-500 uppercase tracking-wide">PNR Code</p>
-        <p className="mt-1 font-mono text-4xl font-bold tracking-widest text-blue-600">
-          {booking.pnr_code}
-        </p>
-        <Badge status={booking.status} className="mt-2" />
-      </div>
-
-      {/* Flight details */}
-      <div className="p-6">
-        <div className="mb-4 flex items-center gap-2 text-slate-700">
-          <Plane size={18} className="rotate-45" />
-          <span className="font-semibold">Flight Details</span>
+      {/* Boarding pass card */}
+      <div className="overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-slate-200">
+        {/* PNR header */}
+        <div className="bg-blue-700 px-6 py-5 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-300">PNR Code</p>
+          <p className="mt-1 font-mono text-5xl font-bold tracking-[0.25em] text-white">
+            {booking.pnr_code}
+          </p>
         </div>
 
-        <div className="mb-6 flex items-center justify-between">
+        {/* Route */}
+        <div className="flex items-center justify-between px-6 py-5">
           <div className="text-center">
-            <p className="text-3xl font-bold">{booking.flight.origin}</p>
-            <p className="text-xs text-slate-500">{formatDateTime(booking.flight.departs_at)}</p>
+            <p className="text-4xl font-bold text-slate-900">{booking.flight.origin}</p>
+            <p className="mt-0.5 text-sm text-slate-500">{formatTime(booking.flight.departs_at)}</p>
           </div>
-          <div className="flex flex-col items-center text-xs text-slate-400">
+          <div className="flex flex-col items-center gap-1 text-xs text-slate-400">
             <span>{formatDuration(booking.flight.departs_at, booking.flight.arrives_at)}</span>
-            <div className="my-1 flex items-center gap-1">
+            <div className="flex items-center gap-1">
               <div className="h-px w-8 bg-slate-200" />
-              <Plane size={14} className="rotate-90 text-blue-400" />
+              <Plane size={14} className="rotate-90 text-blue-500" />
+              <ArrowRight size={12} className="text-slate-300" />
               <div className="h-px w-8 bg-slate-200" />
             </div>
             <span>{booking.flight.flight_no}</span>
           </div>
           <div className="text-center">
-            <p className="text-3xl font-bold">{booking.flight.destination}</p>
-            <p className="text-xs text-slate-500">{formatDateTime(booking.flight.arrives_at)}</p>
+            <p className="text-4xl font-bold text-slate-900">{booking.flight.destination}</p>
+            <p className="mt-0.5 text-sm text-slate-500">{formatTime(booking.flight.arrives_at)}</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-50 p-4 text-sm">
-          <span className="text-slate-500">Seat</span>
-          <span className="font-medium">{booking.seat.seat_number} · {booking.seat.class}</span>
-          {passenger && (
-            <>
-              <span className="text-slate-500">Passenger</span>
-              <span className="font-medium">{passenger.full_name}</span>
-            </>
-          )}
-          <span className="text-slate-500">Aircraft</span>
-          <span className="font-medium">{booking.flight.aircraft_type}</span>
-          <span className="text-slate-500 font-semibold">Total Paid</span>
-          <span className="font-bold text-blue-600">{formatPrice(booking.total_price)}</span>
+        {/* Tear line */}
+        <div className="flex items-center gap-0">
+          <div className="-ml-3 h-6 w-6 rounded-full bg-slate-100 ring-1 ring-slate-200" />
+          <div className="flex-1 border-t border-dashed border-slate-200" />
+          <div className="-mr-3 h-6 w-6 rounded-full bg-slate-100 ring-1 ring-slate-200" />
         </div>
-      </div>
 
-      {/* Actions */}
-      <div className="flex gap-3 p-6 pt-0">
-        <Link href="/bookings" className="flex-1">
-          <Button variant="secondary" className="w-full gap-2">
-            <BookOpen size={16} />
-            My Bookings
-          </Button>
-        </Link>
-        <Link href="/" className="flex-1">
-          <Button className="w-full">Search More</Button>
-        </Link>
+        {/* Details grid */}
+        <div className="grid grid-cols-2 gap-4 px-6 py-5">
+          <div>
+            <p className="flex items-center gap-1 text-xs text-slate-400">
+              <Armchair size={11} /> Seat
+            </p>
+            <p className="mt-0.5 font-semibold capitalize text-slate-900">
+              {booking.seat.seat_number} · {booking.seat.class}
+            </p>
+          </div>
+          {passenger && (
+            <div>
+              <p className="flex items-center gap-1 text-xs text-slate-400">
+                <User size={11} /> Passenger
+              </p>
+              <p className="mt-0.5 font-semibold text-slate-900">{passenger.full_name}</p>
+            </div>
+          )}
+          <div>
+            <p className="text-xs text-slate-400">Date</p>
+            <p className="mt-0.5 font-semibold text-slate-900">{formatDateTime(booking.flight.departs_at)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400">Total Paid</p>
+            <p className="mt-0.5 text-lg font-bold text-blue-700">{formatPrice(booking.total_price)}</p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3 border-t border-slate-100 px-6 py-4">
+          <Link href="/bookings" className="flex-1">
+            <Button variant="secondary" className="w-full">My Bookings</Button>
+          </Link>
+          <Link href="/" className="flex-1">
+            <Button className="w-full">Book Another</Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
@@ -110,14 +124,12 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const bookingId = params.booking;
 
-  if (!bookingId) {
-    redirect('/');
-  }
+  if (!bookingId) redirect('/');
 
   return (
     <div className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center px-4 py-12">
       <Suspense fallback={
-        <div className="text-center text-slate-500">Loading your confirmation…</div>
+        <div className="text-center text-sm text-slate-500">Loading confirmation…</div>
       }>
         <ConfirmationCard bookingId={bookingId} />
       </Suspense>

@@ -29,7 +29,7 @@ async function FlightResults({ origin, destination, date }: { origin: string; de
 
   if (error) {
     return (
-      <div className="rounded-2xl bg-red-50 p-6 text-center text-red-700">
+      <div className="rounded-xl bg-red-50 px-5 py-4 text-sm text-red-700 ring-1 ring-red-200">
         Failed to load flights. Please try again.
       </div>
     );
@@ -37,20 +37,22 @@ async function FlightResults({ origin, destination, date }: { origin: string; de
 
   if (!flights?.length) {
     return (
-      <div className="rounded-2xl bg-white p-12 text-center shadow-sm ring-1 ring-slate-200">
-        <Plane size={48} className="mx-auto mb-4 rotate-45 text-slate-300" />
-        <h3 className="text-lg font-semibold text-slate-700">No flights found</h3>
+      <div className="rounded-2xl bg-white px-8 py-14 text-center shadow-sm ring-1 ring-slate-200">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
+          <Plane size={24} className="rotate-45 text-slate-400" />
+        </div>
+        <h3 className="text-base font-semibold text-slate-800">No flights found</h3>
         <p className="mt-1 text-sm text-slate-500">
-          No flights available from {origin} to {destination} on this date.
+          No flights from <strong>{origin}</strong> to <strong>{destination}</strong> on this date.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-sm text-slate-500">
-        {flights.length} flight{flights.length !== 1 ? 's' : ''} found
+    <div className="flex flex-col gap-3">
+      <p className="text-sm font-medium text-slate-500">
+        {flights.length} flight{flights.length !== 1 ? 's' : ''} available
       </p>
       {flights.map((flight: Flight) => (
         <FlightCard key={flight.id} flight={flight} />
@@ -65,34 +67,37 @@ export default async function HomePage({ searchParams }: PageProps) {
   const hasSearch = origin && destination && date;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      {/* Hero */}
-      {!hasSearch && (
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-slate-900 sm:text-5xl">
-            Book your next{' '}
-            <span className="text-blue-600">flight</span>
-          </h1>
-          <p className="mt-3 text-lg text-slate-500">
-            Search from hundreds of flights across India
-          </p>
+    <div>
+      {/* Hero band */}
+      <div className="bg-blue-700 px-4 pb-10 pt-12">
+        <div className="mx-auto max-w-4xl">
+          {!hasSearch && (
+            <div className="mb-8 text-center">
+              <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Book your next flight
+              </h1>
+              <p className="mt-2 text-blue-200">
+                Search domestic flights across India
+              </p>
+            </div>
+          )}
+          <SearchForm />
         </div>
-      )}
-
-      <div className="mb-8">
-        <SearchForm />
       </div>
 
+      {/* Results */}
       {hasSearch && (
-        <Suspense
-          fallback={
-            <div className="flex justify-center py-12">
-              <LoadingSpinner size="lg" />
-            </div>
-          }
-        >
-          <FlightResults origin={origin} destination={destination} date={date} />
-        </Suspense>
+        <div className="mx-auto max-w-4xl px-4 py-8">
+          <Suspense
+            fallback={
+              <div className="flex justify-center py-16">
+                <LoadingSpinner size="lg" />
+              </div>
+            }
+          >
+            <FlightResults origin={origin} destination={destination} date={date} />
+          </Suspense>
+        </div>
       )}
     </div>
   );

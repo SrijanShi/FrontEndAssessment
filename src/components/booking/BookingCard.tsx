@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plane, Calendar, Armchair, Hash, X, RefreshCw } from 'lucide-react';
+import { ArrowRight, RefreshCw, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useFlightStore } from '@/store/flightStore';
 import type { Booking, Flight, Seat } from '@/types';
@@ -49,81 +49,78 @@ export function BookingCard({ booking }: BookingCardProps) {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition-shadow hover:shadow-md">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        {/* Left: route info */}
-        <div className="flex-1">
-          <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-              <Plane size={18} className="rotate-45" />
-            </div>
-            <div>
-              <p className="font-semibold text-slate-900">
-                {booking.flight.origin} → {booking.flight.destination}
-              </p>
-              <p className="text-sm text-slate-500">{booking.flight.flight_no}</p>
-            </div>
-            <Badge status={booking.status} />
-          </div>
+    <div className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${isActive ? 'ring-slate-200' : 'ring-slate-100 opacity-75'}`}>
+      {/* Top strip with route + status */}
+      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+        <div className="flex items-center gap-2">
+          <span className="text-base font-bold text-slate-900">{booking.flight.origin}</span>
+          <ArrowRight size={14} className="text-slate-400" />
+          <span className="text-base font-bold text-slate-900">{booking.flight.destination}</span>
+          <span className="text-sm text-slate-400">· {booking.flight.flight_no}</span>
+        </div>
+        <Badge status={booking.status} />
+      </div>
 
-          <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm sm:grid-cols-4">
-            <div className="flex items-center gap-1.5 text-slate-500">
-              <Calendar size={14} />
-              <span>{formatDateTime(booking.flight.departs_at)}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-slate-500">
-              <Armchair size={14} />
-              <span>Seat {booking.seat.seat_number} · {booking.seat.class}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-slate-500">
-              <Hash size={14} />
-              <span className="font-mono font-semibold text-slate-700">{booking.pnr_code}</span>
-            </div>
-            <div className="text-slate-500">
-              Duration: {formatDuration(booking.flight.departs_at, booking.flight.arrives_at)}
-            </div>
+      {/* Main content */}
+      <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Flight info grid */}
+        <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm sm:grid-cols-4">
+          <div>
+            <p className="text-xs text-slate-400">Date</p>
+            <p className="font-semibold text-slate-900">{formatDateTime(booking.flight.departs_at)}</p>
           </div>
-
-          <p className="mt-3 font-semibold text-blue-600">{formatPrice(booking.total_price)}</p>
+          <div>
+            <p className="text-xs text-slate-400">Duration</p>
+            <p className="font-semibold text-slate-900">{formatDuration(booking.flight.departs_at, booking.flight.arrives_at)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400">Seat</p>
+            <p className="font-semibold capitalize text-slate-900">{booking.seat.seat_number} · {booking.seat.class}</p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400">Total Paid</p>
+            <p className="font-bold text-blue-700">{formatPrice(booking.total_price)}</p>
+          </div>
         </div>
 
-        {/* Right: actions */}
-        {isActive && (
-          <div className="flex items-center gap-2 sm:flex-col sm:items-end">
-            <Link href={`/bookings/${booking.id}/reschedule`}>
-              <Button variant="outline" size="sm" className="gap-1.5">
-                <RefreshCw size={14} />
-                Reschedule
-              </Button>
-            </Link>
-            <Button
-              variant="danger"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => setCancelOpen(true)}
-            >
-              <X size={14} />
-              Cancel
-            </Button>
+        {/* PNR + actions */}
+        <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
+          <div className="text-right">
+            <p className="text-xs text-slate-400">PNR</p>
+            <p className="font-mono text-lg font-bold tracking-widest text-slate-900">{booking.pnr_code}</p>
           </div>
-        )}
+          {isActive && (
+            <div className="flex gap-2">
+              <Link href={`/bookings/${booking.id}/reschedule`}>
+                <Button variant="outline" size="sm" className="gap-1.5">
+                  <RefreshCw size={13} />
+                  Reschedule
+                </Button>
+              </Link>
+              <Button variant="danger" size="sm" className="gap-1.5" onClick={() => setCancelOpen(true)}>
+                <X size={13} />
+                Cancel
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {cancelError && (
+        <div className="mx-5 mb-4 rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700 ring-1 ring-red-200">
+          {cancelError}
+        </div>
+      )}
 
       <ConfirmModal
         open={cancelOpen}
         onClose={() => { setCancelOpen(false); setCancelError(''); }}
         onConfirm={handleCancel}
         title="Cancel Booking"
-        message={`Are you sure you want to cancel booking ${booking.pnr_code}? This action cannot be undone. Cancellations within 2 hours of departure are not allowed.`}
+        message={`Cancel booking ${booking.pnr_code}? This cannot be undone. Cancellations within 2 hours of departure are blocked.`}
         confirmLabel="Yes, Cancel"
         loading={cancelLoading}
       />
-
-      {cancelError && (
-        <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-          {cancelError}
-        </p>
-      )}
     </div>
   );
 }
