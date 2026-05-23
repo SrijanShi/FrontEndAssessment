@@ -66,9 +66,9 @@ supabase db push
 
 Go to Supabase Dashboard → Authentication → Users → **Add user**, or use the sign-up page in the app.
 
-**Test credentials (create manually in Supabase Auth):**
-- Email: `test@skybook.dev`
-- Password: `Test1234!`
+**Test credentials:**
+- Email: `testuser@skybook.com`
+- Password: `SkyBook@2026`
 
 ### 5. Run the app
 
