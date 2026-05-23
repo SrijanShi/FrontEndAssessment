@@ -153,7 +153,16 @@ npm run build && npm start
 - **Offline fallback** — `/offline` page shown when no connectivity
 - **Install banner** — shown on first mobile visit via `beforeinstallprompt`
 
-_[Add Lighthouse PWA screenshot here after production build]_
+**Lighthouse scores (mobile, Slow 4G, production — May 2026):**
+
+| Category | Score |
+|---|---|
+| Performance | 60 |
+| Accessibility | 100 |
+| Best Practices | 96 |
+| SEO | 91 |
+
+> Note: Performance score is measured on emulated Moto G Power with Slow 4G throttling. The 428 KB JS bundle (Supabase SDK + Zustand + Next.js runtime) accounts for most of the deduction under these constrained conditions. Accessibility, Best Practices, and SEO all score 90+.
 
 ---
 

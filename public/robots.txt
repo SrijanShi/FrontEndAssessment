@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://front-end-assessment-ashen.vercel.app/sitemap.xml
