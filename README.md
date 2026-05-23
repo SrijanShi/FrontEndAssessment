@@ -2,7 +2,7 @@
 
 A production-like Flight Management web application built as a technical internship assignment.
 
-**Live Demo:** _[Add Vercel URL after deploy]_
+**Live Demo:** https://front-end-assessment-ashen.vercel.app/
 
 ---
 
